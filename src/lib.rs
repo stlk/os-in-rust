@@ -1,7 +1,12 @@
 #![feature(lang_items)]
 #![no_std]
+#![feature(unique)]
+#![feature(const_fn)]
 
 extern crate rlibc;
+extern crate spin;
+
+mod vga_buffer;
 
 #[no_mangle]
 pub extern fn rust_main() {
@@ -18,6 +23,10 @@ pub extern fn rust_main() {
     // write `Hello World!` to the center of the VGA text buffer
     let buffer_ptr = (0xb8000 + 1988) as *mut _;
     unsafe { *buffer_ptr = hello_colored };
+
+    use core::fmt::Write;
+    vga_buffer::WRITER.lock().write_str("Hello again");
+    write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337);
 
     loop{}
 }
